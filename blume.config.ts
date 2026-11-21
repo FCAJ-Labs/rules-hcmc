@@ -81,5 +81,5 @@ export default defineConfig({
 
 	analytics: [vercel()],
 
-	deployment: VercelAdapter(),
+	deployment: VercelAdapter({ site: "https://hcm-rules.awsfcaj.com" }),
 });

@@ -19,10 +19,10 @@ Blume's own docs ship in `node_modules/blume/docs/` (configuration, content, com
 - `components/` — `Sidebar` and `Pagination` scope navigation to one audience; `PageFooter` adds Vercel Speed Insights and ArrowLeft/ArrowRight page navigation (`fcaj-keyboard-navigation.ts`).
 - `components/navigation/` — audience logic: routes under `/events` belong to the Events audience, everything else to Internship. Keep sidebar and pagination using the same helpers.
 - `contents/` — all pages (MDX):
-  - `(internship)/` — Internship pages; the route group adds no URL prefix (`/instructions/...`, `/regulations/...`).
-  - `events/` — Bitexco Events pages under `/events/...`.
-  - `_shared/` — snippets included from both audiences, never routed on their own.
-  - `index.mdx` (custom landing page), `internship.mdx`.
+    - `(internship)/` — Internship pages; the route group adds no URL prefix (`/instructions/...`, `/regulations/...`).
+    - `events/` — Bitexco Events pages under `/events/...`.
+    - `_shared/` — snippets included from both audiences, never routed on their own.
+    - `index.mdx` (custom landing page), `internship.mdx`.
 - `assets/images/` — content images, referenced from MDX by relative path.
 - `public/` — files served as-is (logos, favicon). Not optimized at build time.
 - `theme.css` — site-wide style overrides.

@@ -7,7 +7,7 @@
 		"build": "blume build",
 		"doctor": "blume doctor",
 		"fmt": "prettier --write .",
-		"typecheck": "blume check --isolated",
+		"typecheck": "blume check --strict",
 		"up": "taze"
 	},
 	"dependencies": {

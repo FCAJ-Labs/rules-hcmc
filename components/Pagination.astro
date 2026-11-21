@@ -1,0 +1,72 @@
+---
+import data from "blume:data";
+import { stripBase, withMountedBase } from "blume/components/islands/base-path.ts";
+import Icon from "blume/components/Icon.astro";
+import type { FlatPage } from "blume/components/layout/nav-utils.ts";
+import { resolvePagination } from "./navigation/pagination.ts";
+
+type PageStrings = {
+	next?: string;
+	pagination?: string;
+	previous?: string;
+};
+
+interface Props {
+	prev: FlatPage | null;
+	next: FlatPage | null;
+	strings?: PageStrings;
+}
+
+const { prev, next, strings } = Astro.props;
+const labels = {
+	next: "Next",
+	pagination: "Pagination",
+	previous: "Previous",
+	...(strings ?? {}),
+};
+
+const route = stripBase(import.meta.env.BASE_URL ?? "/", Astro.url.pathname).replace(
+	/(.)\/+$/u,
+	"$1",
+);
+const resolved = resolvePagination(data.navigation.sidebar, route);
+const scopedPrev = resolved ? resolved.prev : prev;
+const scopedNext = resolved ? resolved.next : next;
+---
+
+{(scopedPrev || scopedNext) && (
+	<nav
+		aria-label={labels.pagination}
+		class="mx-auto mt-12 flex max-w-content justify-between gap-4 border-border border-t pt-6">
+		{scopedPrev ? (
+			<a
+				class="flex max-w-[48%] flex-1 items-center gap-2 rounded-blume border border-border px-4 py-3 text-foreground transition-colors hover:border-foreground"
+				data-fcaj-pagination="previous"
+				href={withMountedBase(scopedPrev.route)}>
+				<Icon class="rtl:-scale-x-100" name="arrow-left" size={16} />
+				<span class="min-w-0">
+					<span class="block text-muted-foreground text-xs">{labels.previous}</span>
+					<span class="block font-medium max-md:line-clamp-2 max-md:wrap-break-word md:truncate">
+						{scopedPrev.label}
+					</span>
+				</span>
+			</a>
+		) : (
+			<span />
+		)}
+		{scopedNext && (
+			<a
+				class="ms-auto flex max-w-[48%] flex-1 items-center justify-end gap-2 rounded-blume border border-border px-4 py-3 text-end text-foreground transition-colors hover:border-foreground"
+				data-fcaj-pagination="next"
+				href={withMountedBase(scopedNext.route)}>
+				<span class="min-w-0">
+					<span class="block text-muted-foreground text-xs">{labels.next}</span>
+					<span class="block font-medium max-md:line-clamp-2 max-md:wrap-break-word md:truncate">
+						{scopedNext.label}
+					</span>
+				</span>
+				<Icon class="rtl:-scale-x-100" name="arrow-right" size={16} />
+			</a>
+		)}
+	</nav>
+)}

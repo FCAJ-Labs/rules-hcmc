@@ -1,0 +1,533 @@
+header img {
+	height: 32px;
+	width: auto;
+}
+/* ---------------------------------------------------------------- */
+/* Typography — Inter with tight, bold headings                     */
+/* ---------------------------------------------------------------- */
+.prose {
+	font-size: 0.9375rem;
+	line-height: 1.65;
+}
+.prose :where(h1) {
+	font-weight: 700;
+	letter-spacing: -0.05em;
+}
+.prose :where(h2) {
+	font-size: 1.5rem;
+	font-weight: 600;
+	letter-spacing: -0.025em;
+	margin-top: 2.75rem;
+}
+.prose :where(h3) {
+	font-weight: 600;
+	letter-spacing: -0.0125em;
+}
+/* Filled code blocks like the reference (not Blume's outline style) */
+.prose pre,
+.prose pre.astro-code {
+	background: var(--blume-code-background) !important;
+}
+/* Twoslash hover popups are rendered at opacity 0 but still occupy
+   layout, stretching the page sideways and adding thousands of pixels
+   of phantom height below the content on narrow viewports. Keep them
+   out of layout entirely until their trigger is hovered. */
+.prose
+	.twoslash-hover:not(:hover):not(.twoslash-open)
+	:is(.twoslash-popup-container, .twoslash-bridge) {
+	display: none;
+}
+/* Touch has no hover: twoslash-popups.ts pins .twoslash-open on the
+   tapped token (cleared by tapping elsewhere). Mirror the :hover reveal
+   the shiki stylesheet keys on (opacity 0 / pointer-events none
+   otherwise). */
+.prose .twoslash-hover.twoslash-open .twoslash-popup-container {
+	opacity: 1;
+	pointer-events: auto;
+}
+/* Touch scrolling dismisses the placed popup (twoslash-popups.ts sets
+   .twoslash-dismissed, the next placement lifts it). display, not
+   opacity: the popup must also disappear in browsers whose sticky
+   tap-:hover would otherwise keep the reveal alive, and the bridge
+   must go with it so the stale fixed strip can't swallow a tap. */
+.prose .twoslash-hover.twoslash-dismissed :is(.twoslash-popup-container, .twoslash-bridge) {
+	display: none;
+}
+main#blume-content {
+	overflow-x: clip;
+}
+/* Blume keeps twoslash blocks `overflow: visible` so absolutely positioned
+   popups can escape them, which leaves long lines nowhere to go: Blume only
+   wraps them below 640px, so on wider screens they run straight past the
+   block. The popups here are fixed instead (below) and escape any scroller,
+   so twoslash code scrolls horizontally like every other block. Scrolling
+   the inner code keeps the header bar and copy button static, matching
+   Blume's own pattern for regular blocks, which also carry the horizontal
+   padding on the code element. */
+.prose pre.twoslash {
+	padding-left: 0;
+	padding-right: 0;
+}
+.prose pre.twoslash > code {
+	display: block;
+	overflow-x: auto;
+	white-space: pre;
+	overflow-wrap: normal;
+	padding: 0 1.25rem 0.375rem;
+	scrollbar-color: var(--blume-border) transparent;
+	scrollbar-width: thin;
+}
+/* Fixed positioning escapes the code scroller above, and sizes the popup
+   readably: anchored to a tiny inline token, an absolute popup squeezes
+   into an unreadable sliver over the code on narrow screens.
+   twoslash-popups.ts anchors it next to the token on reveal (below it, or
+   above when the token sits near the bottom of the screen) and bridges
+   the gap with a real element so the pointer can cross into the popup;
+   the viewport centering here is only the first-frame fallback until the
+   script can measure the popup's width. */
+.prose .twoslash-popup-container {
+	position: fixed;
+	inset: auto auto auto 50%;
+	/* Replaces twoslash's transform: translateY(1.1em) — the margin below
+     keeps the fixed math exact — and centers horizontally. Centering
+     must live on transform, not the translate property: the production
+     build lowers translate into transform, which would survive the
+     script's inline override and drag the placed popup half a width
+     off-screen. */
+	transform: translateX(-50%);
+	z-index: 60;
+	margin: 0.375rem 0 0;
+	/* max-content, not shrink-to-fit: sized against the tiny token span,
+     shrink-to-fit collapses a wrappable popup to its narrowest content.
+     With the cap as max-width, only signatures that genuinely exceed it
+     wrap, at the full cap width. */
+	width: max-content;
+	max-width: min(100vw - 1.5rem, 34rem);
+	/* Oversized popups scroll internally; the script tightens the cap to the
+     space actually left beside the token. */
+	max-height: 45dvh;
+	overflow-y: auto;
+	scrollbar-color: var(--blume-border) transparent;
+	scrollbar-width: thin;
+	border-radius: 0.5rem;
+	box-shadow: 0 8px 30px rgb(0 0 0 / 0.25);
+}
+/* Wrap popup code: signatures emitted as one long line would otherwise
+   keep pre whitespace and blow the popup past its max-width. */
+.prose .twoslash-popup-container :is(pre, code) {
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+/* ---------------------------------------------------------------- */
+/* Non-owned chrome                                                 */
+/* ---------------------------------------------------------------- */
+/* The desktop on-this-page aside renders the owned TableOfContents (which
+   carries the coffee card) before Blume's non-overridable PageActions. Flexing
+   the aside lets the card's `order-1` + `mt-auto` pin it to the bottom of the
+   rail without owning RootLayout. The card's sticky wrapper owns the bottom
+   spacing instead of the aside's pb-10, so the card rests at the same offset
+   whether the rail scrolls (stuck at bottom-0) or not (mt-auto).
+   Scoped to xl, the tier Blume reveals the rail at: `aside[data-blume-toc]`
+   outranks the `hidden` utility that hides it below xl, so an unscoped
+   `display` here would leak the rail onto every narrower viewport as an
+   extra grid row under the nav column. */
+@media (min-width: 80rem) {
+	aside[data-blume-toc] {
+		display: flex;
+		flex-direction: column;
+		padding-bottom: 0;
+	}
+	aside[data-blume-toc] > * {
+		flex: none;
+	}
+}
+/* Blume tints `:::tip` blocks with the accent color, which here is the brand
+   pink — a tip then reads as an alarm, barely distinguishable from the red
+   `:::danger` blocks. Green instead (GitHub's alert convention); the docs use
+   no `success`/`check` callouts for it to collide with. */
+aside[data-blume-callout="tip"] {
+	border-color: color-mix(in oklab, var(--color-green-500) 25%, transparent);
+	background-color: color-mix(in oklab, var(--color-green-500) 10%, transparent);
+}
+aside[data-blume-callout="tip"] [class~="text-accent"] {
+	color: var(--color-green-600);
+}
+:root[data-theme="dark"] aside[data-blume-callout="tip"] [class~="text-accent"] {
+	color: var(--color-green-400);
+}
+/* The page-actions popovers (Export, Connect to MCP) are up to 22rem
+   wide but live inside the scrollable TOC rail, which clips anything
+   wider than the rail. Size them to the rail instead. */
+[data-blume-toc] [data-blume-menu] {
+	inset-inline-end: 0;
+	width: 100%;
+	min-width: 0;
+	max-width: none;
+}
+/* Keep list markers visible inside Blume callouts. Callout uses `not-prose`,
+   so the typography plugin does not restore the list styles after Tailwind's
+   preflight resets them. */
+aside[data-blume-callout] :where(ul) {
+	list-style-type: disc;
+	padding-inline-start: 1.25rem;
+}
+aside[data-blume-callout] :where(ol) {
+	list-style-type: decimal;
+	padding-inline-start: 1.25rem;
+}
+aside[data-blume-callout] :where(li) {
+	padding-inline-start: 0.25rem;
+}
+/* Audience landing: two clear paths, one colour each. */
+.fcaj-guide-landing {
+	margin: 0 auto;
+	max-width: 64rem;
+	padding: 4rem 0 5rem;
+}
+
+.fcaj-guide-hero {
+	isolation: isolate;
+	margin-bottom: 3rem;
+	position: relative;
+}
+
+/* Very faint dot grid that fades out towards the edges. */
+.fcaj-guide-hero::before {
+	background-image: radial-gradient(
+		color-mix(in oklab, var(--color-foreground) 22%, transparent) 1px,
+		transparent 1.5px
+	);
+	background-size: 22px 22px;
+	content: "";
+	inset: -2rem -1.5rem;
+	mask-image: radial-gradient(ellipse 70% 90% at 25% 40%, #000 20%, transparent 75%);
+	opacity: 0.55;
+	pointer-events: none;
+	position: absolute;
+	z-index: -1;
+}
+
+.fcaj-guide-kicker {
+	align-items: center;
+	color: var(--color-muted-foreground);
+	display: flex;
+	font-size: 0.75rem;
+	font-weight: 700;
+	gap: 0.6rem;
+	letter-spacing: 0.16em;
+	margin: 0 0 1rem;
+	text-transform: uppercase;
+}
+
+.fcaj-guide-kicker::before {
+	background: var(--color-accent);
+	border-radius: 999px;
+	content: "";
+	height: 0.5rem;
+	width: 0.5rem;
+}
+
+.fcaj-guide-landing h1 {
+	font-size: clamp(2.25rem, 6vw, 4.25rem);
+	letter-spacing: -0.04em;
+	line-height: 1.1;
+	margin: 0;
+}
+
+.fcaj-guide-landing h1 span {
+	display: block;
+}
+
+.fcaj-guide-accent {
+	background: linear-gradient(90deg, #2563eb, #d97706);
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	padding-bottom: 0.08em;
+}
+
+.fcaj-guide-lead {
+	color: var(--color-muted-foreground);
+	font-size: 1.05rem;
+	line-height: 1.7;
+	margin: 1.25rem 0 0;
+	max-width: 36rem;
+}
+
+/* Path cards: chamfered corners, one colour each, light hover effect. */
+.fcaj-guide-paths {
+	display: grid;
+	gap: 1.25rem;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 40rem) {
+	.fcaj-guide-paths {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.fcaj-path {
+	--cut: 1.75rem;
+	--lc: #2563eb;
+	transition:
+		filter 200ms ease,
+		transform 200ms ease;
+}
+
+.fcaj-path--events {
+	--lc: #d97706;
+}
+
+:root[data-theme="dark"] .fcaj-path {
+	--lc: #60a5fa;
+}
+
+:root[data-theme="dark"] .fcaj-path--events {
+	--lc: #fbbf24;
+}
+
+/* The link is the 1px border; the body is the inner fill. Both share the cut corners. */
+.fcaj-path-link {
+	background: color-mix(in oklab, var(--lc) 45%, var(--color-border));
+	clip-path: polygon(
+		0 0,
+		calc(100% - var(--cut)) 0,
+		100% var(--cut),
+		100% 100%,
+		var(--cut) 100%,
+		0 calc(100% - var(--cut))
+	);
+	color: inherit;
+	display: block;
+	height: 100%;
+	padding: 1px;
+	text-decoration: none;
+	transition: background-color 200ms ease;
+}
+
+.fcaj-path-body {
+	background:
+		radial-gradient(
+			120% 90% at 0% 0%,
+			color-mix(in oklab, var(--lc) 16%, transparent),
+			transparent 60%
+		),
+		color-mix(in oklab, var(--lc) 6%, var(--color-background));
+	clip-path: polygon(
+		0 0,
+		calc(100% - var(--cut) + 0.4px) 0,
+		100% calc(var(--cut) - 0.4px),
+		100% 100%,
+		calc(var(--cut) - 0.4px) 100%,
+		0 calc(100% - var(--cut) + 0.4px)
+	);
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	height: 100%;
+	min-height: 15rem;
+	overflow: hidden;
+	padding: 1.5rem 1.5rem 1.25rem;
+	position: relative;
+}
+
+/* Thin light sweep on hover. */
+.fcaj-path-body::after {
+	background: linear-gradient(
+		115deg,
+		transparent 40%,
+		color-mix(in oklab, var(--lc) 16%, transparent) 50%,
+		transparent 60%
+	);
+	background-position: 130% 0;
+	background-size: 250% 100%;
+	content: "";
+	inset: 0;
+	pointer-events: none;
+	position: absolute;
+	transition: background-position 700ms ease;
+}
+
+.fcaj-path-top {
+	align-items: center;
+	display: flex;
+	gap: 0.75rem;
+}
+
+.fcaj-path-icon {
+	align-items: center;
+	background: color-mix(in oklab, var(--lc) 14%, transparent);
+	border: 1px solid color-mix(in oklab, var(--lc) 35%, transparent);
+	border-radius: 0.75rem;
+	color: var(--lc);
+	display: inline-flex;
+	height: 2.75rem;
+	justify-content: center;
+	width: 2.75rem;
+}
+
+.fcaj-path-icon svg {
+	height: 1.4rem;
+	width: 1.4rem;
+}
+
+.fcaj-path-tag {
+	color: var(--color-muted-foreground);
+	font-family: ui-monospace, "Geist Mono", SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.7rem;
+	letter-spacing: 0.14em;
+	margin-inline-start: auto;
+	padding-inline-end: 1.25rem;
+}
+
+.fcaj-path-title {
+	color: var(--color-foreground);
+	font-size: 1.25rem;
+	font-weight: 700;
+	letter-spacing: -0.01em;
+	line-height: 1.3;
+	margin-top: 0.5rem;
+}
+
+.fcaj-path-desc {
+	color: var(--color-muted-foreground);
+	font-size: 0.95rem;
+	line-height: 1.65;
+}
+
+.fcaj-path-cta {
+	align-items: center;
+	color: var(--lc);
+	display: inline-flex;
+	font-size: 0.9rem;
+	font-weight: 600;
+	gap: 0.4rem;
+	margin-top: auto;
+	padding-top: 0.5rem;
+}
+
+.fcaj-path-cta svg {
+	fill: none;
+	height: 1rem;
+	stroke: currentColor;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	stroke-width: 2;
+	transition: transform 200ms ease;
+	width: 1rem;
+}
+
+.fcaj-path-icon svg {
+	fill: none;
+	stroke: currentColor;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	stroke-width: 1.75;
+}
+
+.fcaj-path:hover,
+.fcaj-path:focus-within {
+	filter: drop-shadow(0 0.9rem 1.25rem color-mix(in oklab, var(--lc) 28%, transparent));
+	transform: translateY(-0.25rem);
+}
+
+.fcaj-path:hover .fcaj-path-link,
+.fcaj-path-link:focus-visible {
+	background: var(--lc);
+}
+
+.fcaj-path:hover .fcaj-path-body::after,
+.fcaj-path-link:focus-visible .fcaj-path-body::after {
+	background-position: -30% 0;
+}
+
+.fcaj-path:hover .fcaj-path-cta svg,
+.fcaj-path-link:focus-visible .fcaj-path-cta svg {
+	transform: translateX(0.3rem);
+}
+
+/* Outlines are clipped by the cut corners, so show focus inside the card. */
+.fcaj-path-link:focus-visible {
+	outline: none;
+}
+
+.fcaj-path-link:focus-visible .fcaj-path-body {
+	box-shadow: inset 0 0 0 2px var(--lc);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.fcaj-path,
+	.fcaj-path-link,
+	.fcaj-path-body::after,
+	.fcaj-path-cta svg {
+		transition: none;
+	}
+
+	.fcaj-path:hover,
+	.fcaj-path:focus-within,
+	.fcaj-path:hover .fcaj-path-cta svg {
+		transform: none;
+	}
+}
+/* Event registration choice cards: make the two audience paths visibly clickable. */
+.fcaj-event-registration-options {
+	margin: 2.5rem 0 3rem;
+}
+
+.fcaj-event-registration-options [data-blume-card] {
+	min-height: 15rem;
+	transition:
+		border-color 180ms ease,
+		box-shadow 180ms ease,
+		transform 180ms ease;
+}
+
+/* OJT / FCAJ interns: purple. */
+.fcaj-event-registration-options [data-blume-card]:nth-child(1) {
+	border-color: color-mix(in oklab, #a78bfa 55%, var(--color-border));
+	background: color-mix(in oklab, #7c3aed 18%, var(--color-background));
+}
+
+.fcaj-event-registration-options [data-blume-card]:nth-child(1) [class~="text-accent"] {
+	color: #c084fc;
+}
+
+/* General students: teal. */
+.fcaj-event-registration-options [data-blume-card]:nth-child(2) {
+	border-color: color-mix(in oklab, #2dd4bf 55%, var(--color-border));
+	background: color-mix(in oklab, #0f766e 18%, var(--color-background));
+}
+
+.fcaj-event-registration-options [data-blume-card]:nth-child(2) [class~="text-accent"] {
+	color: #5eead4;
+}
+
+.fcaj-event-registration-options [data-blume-card]:hover,
+.fcaj-event-registration-options [data-blume-card]:focus-within {
+	border-color: #a78bfa;
+	box-shadow: 0 1rem 2.5rem color-mix(in oklab, #7c3aed 18%, transparent);
+	transform: translateY(-0.35rem);
+}
+
+.fcaj-event-registration-options [data-blume-card]:nth-child(2):hover,
+.fcaj-event-registration-options [data-blume-card]:nth-child(2):focus-within {
+	border-color: #2dd4bf;
+	box-shadow: 0 1rem 2.5rem color-mix(in oklab, #0f766e 18%, transparent);
+}
+
+.fcaj-event-registration-options [data-blume-card]:focus-within {
+	outline: 3px solid color-mix(in oklab, #a78bfa 55%, transparent);
+	outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.fcaj-event-registration-options [data-blume-card] {
+		transition: none;
+	}
+
+	.fcaj-event-registration-options [data-blume-card]:hover,
+	.fcaj-event-registration-options [data-blume-card]:focus-within {
+		transform: none;
+	}
+}

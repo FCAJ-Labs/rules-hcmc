@@ -1,0 +1,9 @@
+node_modules/
+.blume/
+dist/
+.env.local
+.vercel/
+.DS_Store
+
+.kiro
+.blume-verify/

@@ -1,0 +1,25 @@
+---
+import type { UIStrings } from "blume/core/i18n-ui.ts";
+import type { NavNode } from "blume/core/types.ts";
+import NavTree from "blume/components/layout/NavTree.astro";
+import { audienceOf, filterNavForAudience } from "./navigation/audience.ts";
+
+interface Props {
+	items: NavNode[];
+	currentRoute: string;
+	strings?: UIStrings["nav"];
+	ids?: Map<NavNode, string>;
+	fragmentBase?: string;
+}
+
+const { items, currentRoute, strings, ids, fragmentBase } = Astro.props;
+const filteredItems = filterNavForAudience(items, audienceOf(currentRoute));
+---
+
+<NavTree
+	currentRoute={currentRoute}
+	fragmentBase={fragmentBase}
+	ids={ids}
+	items={filteredItems}
+	strings={strings}
+/>

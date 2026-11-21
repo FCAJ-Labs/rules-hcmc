@@ -1,0 +1,22 @@
+{
+	"name": "@fcaj/rules",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "blume dev",
+		"build": "blume build",
+		"doctor": "blume doctor",
+		"fmt": "prettier --write .",
+		"typecheck": "blume check --isolated",
+		"up": "taze"
+	},
+	"dependencies": {
+		"@vercel/speed-insights": "^2.1.0",
+		"blume": "^2.2.7",
+		"taze": "^21.3.0"
+	},
+	"devDependencies": {
+		"prettier": "^3.10.1",
+		"prettier-plugin-astro": "^1.1.2"
+	}
+}

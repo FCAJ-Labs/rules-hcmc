@@ -1,7 +1,8 @@
 import { defineMeta } from "blume";
 export default defineMeta({
 	title: "Nội quy",
+	icon: "scroll-text",
 	order: 20,
-	collapsed: false,
+	collapsed: true,
 	pages: ["diligence", "time", "dress-code", "inout", "eatuse", "toilet"],
 });

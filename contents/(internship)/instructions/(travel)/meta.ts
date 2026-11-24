@@ -1,7 +1,7 @@
 import { defineMeta } from "blume";
 export default defineMeta({
 	title: "Di chuyển đến văn phòng",
-	order: 20,
+	icon: "map-pin",
 	collapsed: true,
 	pages: ["parking", "moving"],
 });

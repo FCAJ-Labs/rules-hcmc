@@ -1,7 +1,8 @@
 import { defineMeta } from "blume";
 export default defineMeta({
 	title: "Ôn lại & Xác nhận",
+	icon: "badge-check",
 	order: 30,
-	collapsed: false,
+	collapsed: true,
 	pages: ["summary", "acknowledgement"],
 });

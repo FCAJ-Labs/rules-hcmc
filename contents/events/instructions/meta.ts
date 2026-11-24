@@ -1,7 +1,8 @@
 import { defineMeta } from "blume";
 export default defineMeta({
 	title: "Trước ngày Event",
+	icon: "clipboard-check",
 	order: 10,
-	collapsed: false,
+	collapsed: true,
 	pages: ["register", "parking", "moving", "time-checkin"],
 });
